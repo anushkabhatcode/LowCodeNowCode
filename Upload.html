@@ -1,0 +1,52 @@
+<form id="uploadForm" enctype="multipart/form-data">
+    <label for="fileInput">Choose a file:</label>
+    <input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx,.txt" />
+    <button type="submit">Upload</button>
+  </form>
+  
+  <div id="uploadStatus"></div>
+  
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+  
+      const formData = new FormData();
+      const fileInput = document.getElementById('fileInput').files[0];
+  
+      if (!fileInput) {
+        document.getElementById('uploadStatus').innerText = "Please select a file to upload.";
+        return;
+      }
+  
+      formData.append('file', fileInput);
+  
+      // Fetch request to your backend (localhost or deployed server)
+      fetch('http://localhost:3000/upload', { // Change URL if deployed to a different server
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          // Handle HTTP errors (e.g., 4xx or 5xx responses)
+          throw new Error(`Server responded with status ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Handle the response data
+        if (data.success) {
+          document.getElementById('uploadStatus').innerText = "File uploaded successfully!";
+        } else {
+          // Handle application-level errors from backend
+          document.getElementById('uploadStatus').innerText = `Error: ${data.message || 'Unknown error'}`;
+        }
+      })
+      .catch(error => {
+        // Handle network errors or unexpected errors
+        console.log(response)
+        console.error('There was a problem with the upload:', error);
+        document.getElementById('uploadStatus').innerText = "Error uploading file. Please try again!";
+      });
+    });
+  </script>
+  
